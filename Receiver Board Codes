@@ -1,0 +1,90 @@
+//RECEIVER CODES
+#include "mbed.h"
+#include "Serial.h"
+#include "TextLCD.h"
+
+// Objects -----------------
+
+TextLCD LCD(PTE20,PTE21,PTE22,PTE23,PTE29,PTE30);
+Serial Slave(PTA2,PTA1,9600);
+
+// Variables ---------------
+
+int Temp;
+int Hum;
+int Lights;
+int AC;
+int Fire;
+int Door;
+int Data;
+
+// Methods -----------------
+
+void Bluetooth(){
+    if(Slave.readable()){ 
+        wait(0.1);
+        Door = Slave.getc(); 
+        wait(0.1);
+        Temp = Slave.getc(); 
+        wait(0.1);
+        Hum = Slave.getc(); 
+        wait(0.1);
+        Lights = Slave.getc();    
+        wait(0.1);
+        AC = Slave.getc(); 
+        wait(0.1);
+        Fire = Slave.getc();   
+    }
+    return;
+}
+
+void PrintLCD(){
+    
+    if(Fire == 1){
+        LCD.locate(0,0);
+        LCD.printf("  !!! FIRE !!!  ");
+        LCD.locate(0,1);
+        LCD.printf("    CALL 110    ");
+        return;
+    }
+    
+    if(Door == 1){
+        LCD.locate(0,0);
+        LCD.printf("SUSPICIOUS CALL");
+        LCD.locate(0,1);
+        LCD.printf("MOVEMENT    155");
+        return;
+    }
+    
+    LCD.locate(0,0);
+    LCD.printf(" T=");
+    LCD.printf("%d",Temp);
+    LCD.printf("C ");     
+    LCD.printf("H=");
+    LCD.printf("%d",Hum);
+    LCD.printf("%c", 37);
+    LCD.printf("    ");
+    
+    LCD.locate(0,1);
+
+    if(Lights == 1)
+        LCD.printf("Light Off");
+    else
+        LCD.printf("Light On");
+    
+    if(AC == 1)
+        LCD.printf(" AC On");
+    else
+        LCD.printf(" AC Off");
+
+    return;
+}
+
+// Main Program ------------------
+     
+int main(){ 
+    while(1){
+        Bluetooth();
+        PrintLCD();  
+    }
+}
